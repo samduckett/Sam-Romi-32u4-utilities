@@ -8,9 +8,16 @@ PCISR pcISR[] = {0, 0, 0, 0, 0, 0, 0, 0};
 
 #if defined(__AVR_ATmega32U4__)
 
-//store the previous state -- needed to find which have changed
+/**
+ * Since pin change interrupts share a common interrupt channel, we have to
+ * store the previous state for each pin so we can find which pins have changed
+ */
 static volatile uint8_t lastB = PINB; 
 
+/**
+ * This allows setting an interrupt function similar to Arduino's
+ * attachInterrupt()
+ */
 void attachPCInt(uint8_t pcInt, void (*pcisr)(void))
 {
   if(pcInt >= 8) return;
@@ -29,6 +36,10 @@ void attachPCInt(uint8_t pcInt, void (*pcisr)(void))
   sei();
 }
 
+/**
+ * Called when _any_ pin change interrupt fires, so we have to work out which
+ * ones are enabled and which changed.
+ */
 ISR(PCINT0_vect)
 {
     //read the current state of the PCINT pins
