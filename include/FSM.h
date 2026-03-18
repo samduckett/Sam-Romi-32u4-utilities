@@ -34,7 +34,7 @@ public:
                 return;
             }
         }
-        
+
         // add state action
         if (numStates < MAX_STATES)
         {
@@ -53,7 +53,7 @@ public:
         {
             transitionFrom[numTransitions] = from;
             transitionEvent[numTransitions] = event;
-            transitionTo[numTransitions] = to;
+            transitionToState[numTransitions] = to;
             numTransitions++;
         }
     }
@@ -76,7 +76,7 @@ public:
         {
             if (transitionFrom[i] == currentState && transitionEvent[i] == event)
             {
-                transitionTo(transitionTo[i]);
+                transitionTo(transitionToState[i]);
                 return;
             }
         }
@@ -105,7 +105,7 @@ private:
 
     StateEnum transitionFrom[MAX_TRANSITIONS];
     EventEnum transitionEvent[MAX_TRANSITIONS];
-    StateEnum transitionTo[MAX_TRANSITIONS];
+    StateEnum transitionToState[MAX_TRANSITIONS];
     int numTransitions;
 
     StateActions* getAction(StateEnum state)
