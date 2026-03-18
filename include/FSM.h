@@ -13,7 +13,7 @@ public:
     virtual void exit() {}
 };
 
-template <typename StateEnum, typename EventEnum, int MAX_STATES = 8, int MAX_TRANSITIONS = 16>
+template <typename StateEnum, typename EventEnum, int MAX_STATES = 16, int MAX_TRANSITIONS = 16>
 class FiniteStateMachine
 {
 public:
@@ -25,6 +25,20 @@ public:
      */
     void addStateAction(StateEnum state, StateActions* action)
     {
+        for (int i = 0; i < numStates; i++)
+        {
+            if (stateKeys[i] == state)
+            {
+                stateActions[i] = action;
+                return;
+            }
+        }
+        if (numStates < MAX_STATES)
+        {
+            stateKeys[numStates] = state;
+            stateActions[numStates] = action;
+            numStates++;
+        }
     }
 
     /**
@@ -32,6 +46,13 @@ public:
      */
     void addTransition(StateEnum from, EventEnum event, StateEnum to)
     {
+        if (numTransitions < MAX_TRANSITIONS)
+        {
+            transitionFrom[numTransitions] = from;
+            transitionEvent[numTransitions] = event;
+            transitionTo[numTransitions] = to;
+            numTransitions++;
+        }
     }
 
     /**
@@ -39,6 +60,8 @@ public:
      */
     void start()
     {
+        StateActions* action = getAction(currentState);
+        if (action) (*action).enter();
     }
 
     /**
@@ -46,13 +69,23 @@ public:
      */
     void processEvent(EventEnum event)
     {
+        for (int i = 0; i < numTransitions; i++)
+        {
+            if (transitionFrom[i] == currentState && transitionEvent[i] == event)
+            {
+                transitionTo(transitionTo[i]);
+                return;
+            }
+        }
     }
 
     /**
      * Call every loop tick. calls the update in state action
      */
-    void update(float dt = 0)
+    void update()
     {
+        StateActions* action = getAction(currentState);
+        if (action) (*action).update();
     }
 
     /**
@@ -63,22 +96,32 @@ public:
 private:
     StateEnum currentState;
 
-    // State -> action map
-    StateEnum    stateKeys[MAX_STATES];
+    StateEnum stateKeys[MAX_STATES];
     StateActions* stateActions[MAX_STATES];
     int numStates;
 
-    // Transition table
-    StateEnum  transitionFrom[MAX_TRANSITIONS];
-    EventEnum  transitionEvent[MAX_TRANSITIONS];
-    StateEnum  transitionTo[MAX_TRANSITIONS];
+    StateEnum transitionFrom[MAX_TRANSITIONS];
+    EventEnum transitionEvent[MAX_TRANSITIONS];
+    StateEnum transitionTo[MAX_TRANSITIONS];
     int numTransitions;
 
     StateActions* getAction(StateEnum state)
     {
+        for (int i = 0; i < numStates; i++)
+            if (stateKeys[i] == state) return stateActions[i];
+        return nullptr;
     }
 
     void transitionTo(StateEnum newState)
     {
+        if (newState == currentState) return;
+
+        StateActions* oldAction = getAction(currentState);
+        if (oldAction) (*oldAction).exit();
+
+        currentState = newState;
+
+        StateActions* newAction = getAction(currentState);
+        if (newAction) (*newAction).enter();
     }
 };
