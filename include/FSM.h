@@ -25,6 +25,7 @@ public:
      */
     void addStateAction(StateEnum state, StateActions* action)
     {
+        // replace state action if state already present
         for (int i = 0; i < numStates; i++)
         {
             if (stateKeys[i] == state)
@@ -33,6 +34,8 @@ public:
                 return;
             }
         }
+        
+        // add state action
         if (numStates < MAX_STATES)
         {
             stateKeys[numStates] = state;
