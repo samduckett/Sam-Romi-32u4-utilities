@@ -13,11 +13,11 @@ void TeleplotPrint(const char* var, float value)
 
 void TeleplotPrintXY(const char* topic, float x, float y)
 {
-    SerialUSB.print("\n>");
-    SerialUSB.print(topic);
-    SerialUSB.print(':');
-    SerialUSB.print(x, 5);
-    SerialUSB.print(':');
-    SerialUSB.print(y, 5);
-    SerialUSB.println("|xy");
+    Serial.print("\n>");
+    Serial.print(topic);
+    Serial.print(':');
+    Serial.print(x, 5);
+    Serial.print(':');
+    Serial.print(y, 5);
+    Serial.println("|xy");
 }
