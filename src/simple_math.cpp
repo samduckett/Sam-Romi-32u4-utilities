@@ -17,5 +17,5 @@ float clamp(float value, float minVal, float maxVal)
 
 float clamp(float value, float minVal)
 {
-    return clamp(value, minVal, minVal)
+    return clamp(value, minVal, minVal);
 }
