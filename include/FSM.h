@@ -21,21 +21,20 @@ public:
         : currentState(initialState), numStates(0), numTransitions(0) {}
 
     /**
-     * Register a state action for a given state.
+     * Register a state action for a given state enum
      */
     void addStateAction(StateEnum state, StateActions* action)
     {
     }
 
     /**
-     * Register a transition: from_state + event -> to_state
+     * Register a transition for a event state pair and the to_state
      */
     void addTransition(StateEnum from, EventEnum event, StateEnum to)
     {
     }
 
     /**
-     * Call once after adding all states and transitions.
      * Calls enter() on the initial state.
      */
     void start()
@@ -43,19 +42,22 @@ public:
     }
 
     /**
-     * Fire an event. If a matching transition exists, execute it.
+     * trigers an event, checks if there is an event for the curent state, if so transitions to the to state
      */
     void processEvent(EventEnum event)
     {
     }
 
     /**
-     * Call every loop tick. Calls update() on the current state.
+     * Call every loop tick. calls the update in state action
      */
     void update(float dt = 0)
     {
     }
 
+    /**
+     * gets the curent state
+     */
     StateEnum getState() const { return currentState; }
 
 private:
