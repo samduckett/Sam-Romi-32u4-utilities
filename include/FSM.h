@@ -13,7 +13,7 @@ public:
     virtual void exit() {}
 };
 
-template <typename StateEnum, typename EventEnum, int MAX_STATES = 8, int MAX_TRANSITIONS = 16>
+template <typename StateEnum, typename EventEnum, int MAX_STATES = 16, int MAX_TRANSITIONS = 16>
 class FiniteStateMachine
 {
 public:
@@ -21,62 +21,107 @@ public:
         : currentState(initialState), numStates(0), numTransitions(0) {}
 
     /**
-     * Register a state action for a given state.
+     * Register a state action for a given state enum
      */
     void addStateAction(StateEnum state, StateActions* action)
     {
+        for (int i = 0; i < numStates; i++)
+        {
+            if (stateKeys[i] == state)
+            {
+                stateActions[i] = action;
+                return;
+            }
+        }
+        if (numStates < MAX_STATES)
+        {
+            stateKeys[numStates] = state;
+            stateActions[numStates] = action;
+            numStates++;
+        }
     }
 
     /**
-     * Register a transition: from_state + event -> to_state
+     * Register a transition for a event state pair and the to_state
      */
     void addTransition(StateEnum from, EventEnum event, StateEnum to)
     {
+        if (numTransitions < MAX_TRANSITIONS)
+        {
+            transitionFrom[numTransitions] = from;
+            transitionEvent[numTransitions] = event;
+            transitionTo[numTransitions] = to;
+            numTransitions++;
+        }
     }
 
     /**
-     * Call once after adding all states and transitions.
      * Calls enter() on the initial state.
      */
     void start()
     {
+        StateActions* action = getAction(currentState);
+        if (action) (*action).enter();
     }
 
     /**
-     * Fire an event. If a matching transition exists, execute it.
+     * trigers an event, checks if there is an event for the curent state, if so transitions to the to state
      */
     void processEvent(EventEnum event)
     {
+        for (int i = 0; i < numTransitions; i++)
+        {
+            if (transitionFrom[i] == currentState && transitionEvent[i] == event)
+            {
+                transitionTo(transitionTo[i]);
+                return;
+            }
+        }
     }
 
     /**
-     * Call every loop tick. Calls update() on the current state.
+     * Call every loop tick. calls the update in state action
      */
-    void update(float dt = 0)
+    void update()
     {
+        StateActions* action = getAction(currentState);
+        if (action) (*action).update();
     }
 
+    /**
+     * gets the curent state
+     */
     StateEnum getState() const { return currentState; }
 
 private:
     StateEnum currentState;
 
-    // State -> action map
-    StateEnum    stateKeys[MAX_STATES];
+    StateEnum stateKeys[MAX_STATES];
     StateActions* stateActions[MAX_STATES];
     int numStates;
 
-    // Transition table
-    StateEnum  transitionFrom[MAX_TRANSITIONS];
-    EventEnum  transitionEvent[MAX_TRANSITIONS];
-    StateEnum  transitionTo[MAX_TRANSITIONS];
+    StateEnum transitionFrom[MAX_TRANSITIONS];
+    EventEnum transitionEvent[MAX_TRANSITIONS];
+    StateEnum transitionTo[MAX_TRANSITIONS];
     int numTransitions;
 
     StateActions* getAction(StateEnum state)
     {
+        for (int i = 0; i < numStates; i++)
+            if (stateKeys[i] == state) return stateActions[i];
+        return nullptr;
     }
 
     void transitionTo(StateEnum newState)
     {
+        if (newState == currentState) return;
+
+        StateActions* oldAction = getAction(currentState);
+        if (oldAction) (*oldAction).exit();
+
+        currentState = newState;
+
+        StateActions* newAction = getAction(currentState);
+        if (newAction) (*newAction).enter();
     }
 };
