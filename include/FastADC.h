@@ -22,7 +22,7 @@ private:
 public:
     static void Begin()
     {
-        noInterrupts();
+        cli();
 
         // Enable ADC, enable interrupt
         ADCSRA = (1 << ADEN) | (1 << ADIE) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
@@ -30,7 +30,7 @@ public:
         currentIndex = 0;
         StartConversion(0);
 
-        interrupts();
+        sei();
     }
 
     static uint16_t Get(uint8_t arduinoPin)
