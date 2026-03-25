@@ -13,7 +13,7 @@ public:
     virtual void exit() {}
 };
 
-template <typename StateEnum, typename EventEnum, int MAX_STATES = 16, int MAX_TRANSITIONS = 16>
+template <typename StateEnum, typename EventEnum, int MAX_STATES = 16, int MAX_TRANSITIONS = 32>
 class FiniteStateMachine
 {
 public:
@@ -55,6 +55,15 @@ public:
             transitionEvent[numTransitions] = event;
             transitionToState[numTransitions] = to;
             numTransitions++;
+        }
+    }
+
+    template <size_t SIZE>
+    void addTransition(StateEnum (&from)[SIZE], EventEnum event, StateEnum to)
+    {
+        for (size_t i = 0; i < SIZE; i++)
+        {
+            addTransition(from[i], event, to);
         }
     }
 

@@ -23,8 +23,10 @@ public:
     static void Begin()
     {
         cli();
+        
+        ADCSRB = 0;
 
-        // Enable ADC, enable interrupt
+        // Enable ADC, enable interrupt, set prescaler to /128 (125 kHz @ 16 MHz)
         ADCSRA = (1 << ADEN) | (1 << ADIE) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
 
         currentIndex = 0;
@@ -37,12 +39,22 @@ public:
     {
         uint8_t index = arduinoPin - A0;
         if (index >= FAST_ADC_NUM_CHANNELS) return 0;
-        return results[index];
+
+        // results[] is 16-bit; reads are not atomic on an 8-bit CPU, so disable
+        // interrupts while we grab the snapshot to prevent a torn read.
+        cli();
+        uint16_t val = results[index];
+        sei();
+        return val;
     }
 
     static void HandleISR()
     {
-        results[currentIndex] = ADC;
+        uint8_t i = currentIndex;
+        
+        uint8_t low  = ADCL;  // must read low first
+        uint8_t high = ADCH;  // then high
+        results[i] = (high << 8) | low;
 
         currentIndex++;
         if (currentIndex >= FAST_ADC_NUM_CHANNELS)
