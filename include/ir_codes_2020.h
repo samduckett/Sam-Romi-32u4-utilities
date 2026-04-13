@@ -19,7 +19,7 @@
 #define NUM_2   24
 #define NUM_3   94
 
-#define NUM_4   08
+#define NUM_4   8
 #define NUM_5   28
 #define NUM_6   90
 

@@ -1,19 +1,21 @@
 #pragma once
+/** The constant \a pi.	*/
+#define M_PI		3.14159265358979323846	/* pi */
 
 /**
  * Normalize an angle to the range [-pi, pi].
  */
-float NormalizeAngle(float angle);
+float NormalizeAngle(float &angle);
 
 /**
  * Clamp a value between a minimum and maximum.
  */
-float clamp(float value, float minVal, float maxVal);
+float clamp(float &value, float minVal, float maxVal);
 
 /**
  * Clamp a value between another value.
  */
-float clamp(float value, float minVal);
+float clamp(float &value, float val);
 
 unsigned char SetBit(unsigned char byte, unsigned char bit);
 
