@@ -1,8 +1,9 @@
 #pragma once
+#include <stdio.h>
 
 /**
  * Base class for per-state behavior.
- * 
+ *
  * Each class should re implement enter update and exit
  */
 class StateActions
@@ -18,7 +19,16 @@ class FiniteStateMachine
 {
 public:
     FiniteStateMachine(StateEnum initialState)
-        : currentState(initialState), numStates(0), numTransitions(0) {}
+        : currentState(initialState), numStates(0), numTransitions(0), logger(nullptr) {}
+
+    /**
+     * Register a callable (void fn(const char*)) to receive log messages.
+     * Called on events, transitions, and missing transitions.
+     */
+    void setLogger(void (*logFn)(const char*))
+    {
+        logger = logFn;
+    }
 
     /**
      * Register a state action for a given state enum
@@ -72,6 +82,7 @@ public:
      */
     void start()
     {
+        log1("FSM start: state=%d", (int)currentState);
         StateActions* action = getAction(currentState);
         if (action) (*action).enter();
     }
@@ -81,6 +92,7 @@ public:
      */
     void processEvent(EventEnum event)
     {
+        log2("FSM event=%d (state=%d)", (int)event, (int)currentState);
         for (int i = 0; i < numTransitions; i++)
         {
             if (transitionFrom[i] == currentState && transitionEvent[i] == event)
@@ -89,6 +101,7 @@ public:
                 return;
             }
         }
+        log2("FSM no transition for event=%d in state=%d", (int)event, (int)currentState);
     }
 
     /**
@@ -117,6 +130,24 @@ private:
     StateEnum transitionToState[MAX_TRANSITIONS];
     int numTransitions;
 
+    void (*logger)(const char*);
+
+    void log1(const char* fmt, int a)
+    {
+        if (!logger) return;
+        char buf[64];
+        snprintf(buf, sizeof(buf), fmt, a);
+        logger(buf);
+    }
+
+    void log2(const char* fmt, int a, int b)
+    {
+        if (!logger) return;
+        char buf[64];
+        snprintf(buf, sizeof(buf), fmt, a, b);
+        logger(buf);
+    }
+
     StateActions* getAction(StateEnum state)
     {
         for (int i = 0; i < numStates; i++)
@@ -127,6 +158,8 @@ private:
     void transitionTo(StateEnum newState)
     {
         if (newState == currentState) return;
+
+        log2("FSM transition: state=%d -> state=%d", (int)currentState, (int)newState);
 
         StateActions* oldAction = getAction(currentState);
         if (oldAction) (*oldAction).exit();

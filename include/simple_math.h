@@ -5,7 +5,7 @@
 /**
  * Normalize an angle to the range [-pi, pi].
  */
-float NormalizeAngle(float &angle);
+float NormalizeAngle(float &angle, float NormalizeTo = M_PI);
 
 /**
  * Clamp a value between a minimum and maximum.

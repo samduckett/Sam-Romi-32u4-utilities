@@ -1,9 +1,9 @@
 #include "simple_math.h"
 
-float NormalizeAngle(float &angle)
+float NormalizeAngle(float &angle, float NormalizeTo)
 {
-  while (angle > M_PI) angle -= 2 * M_PI;
-  while (angle < -M_PI) angle += 2 * M_PI;
+  while (angle > NormalizeTo) angle -= 2 * NormalizeTo;
+  while (angle < -NormalizeTo) angle += 2 * NormalizeTo;
   return angle;
 }
 
